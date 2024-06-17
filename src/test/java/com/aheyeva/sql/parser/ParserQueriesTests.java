@@ -17,7 +17,7 @@ class ParserQueriesTests {
 	private SqlParser sqlParser;
 	@BeforeEach
 	void init(){
-		this.sqlParser= new SqlParser(new TokensCreator());
+		this.sqlParser= new SqlParser();
 	}
 	@Test
 	void whenSelectByAsterisk() {

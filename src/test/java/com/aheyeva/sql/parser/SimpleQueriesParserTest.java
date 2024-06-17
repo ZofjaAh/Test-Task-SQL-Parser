@@ -23,7 +23,7 @@ public class SimpleQueriesParserTest {
     @BeforeEach
     void init(){
         this.
-                sqlParser= new SqlParser(new TokensCreator());
+                sqlParser= new SqlParser();
     }
 
         @Test

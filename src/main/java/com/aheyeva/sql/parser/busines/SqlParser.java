@@ -13,9 +13,9 @@ import java.util.Map;
 @AllArgsConstructor
 @Slf4j
 public class SqlParser {
-    private final TokensCreator tokensCreator;
 
     public Query parse(String sqlQuery) {
+        TokensCreator tokensCreator = new TokensCreator();
         Map<String, List<String>> elements = tokensCreator.create(sqlQuery);
         var queryBuilder = Query.builder();
 
@@ -67,10 +67,9 @@ public class SqlParser {
 
     private List<Source> createFromSources(List<String> tokens) {
         if (tokens.isEmpty()) {
-            throw new RuntimeException();
+            throw new ParserException();
         } else if (!tokens.contains(",")) {
 
-            log.info("Tokens Source don't contain ',' : [{}]", tokens);
             if (!tokens.contains("AS") && tokens.size() == 1) {
                 return List.of(new Source(tokens.get(0), null));
             } else if (!tokens.contains("AS") && tokens.size() == 2) {
@@ -83,7 +82,6 @@ public class SqlParser {
                 return List.of(new Source(tokens.get(0), tokens.get(2)));
             }
         } else {
-            log.info("Tokens Source contain ',' : [{}]", tokens);
             List<String> split = getSplit(tokens, " ,");
             if (tokens.contains("AS")) {
                 //contain "," && "AS"
@@ -117,7 +115,6 @@ public class SqlParser {
                 groupJoinIndex.add(i);
             }
         }
-        log.info("The indexes of key-word 'JOIN' are : [{}]", groupJoinIndex);
         List<List<String>> joinConditions = new ArrayList<>();
         for (int j = 0; j < groupJoinIndex.size(); j++) {
             if (j == (groupJoinIndex.size() - 1)) {
@@ -126,11 +123,9 @@ public class SqlParser {
                 joinConditions.add(tokens.subList(groupJoinIndex.get(j) - 1, groupJoinIndex.get(j + 1)));
             }}
             for(List<String> joinCondition: joinConditions){
-            log.info("join condition: [{}] by tokens [{}]", joinCondition, tokens);
             joinIndex = joinCondition.indexOf("JOIN");
             aliasIndex = tokens.indexOf("AS");
             onIndex = tokens.indexOf("ON");
-            log.info("indexes: join/alias/on [{}] / [{}] / [{}]", joinIndex, aliasIndex, onIndex);
             if (joinIndex == 1 && !typesJoin.contains(joinCondition.get(0))) {
                 joinType = "INNER";
                 if (aliasIndex == -1 && (onIndex - joinIndex) > 2 ) {
@@ -156,7 +151,7 @@ public class SqlParser {
                 listJoins.add(new Join(joinType, leftSource,
                         getReduce(joinCondition, onIndex + 1, joinCondition.size()).substring(1)));
 
-            } else {throw new RuntimeException();}
+            } else {throw new ParserException();}
         }
             return listJoins;}
 
@@ -203,18 +198,26 @@ public class SqlParser {
         List<Having> listHavings = new ArrayList<>();
         if ( !tokens.contains("AND")) {
             var havingCondition = getReduce(tokens,0, tokens.size());
+            if(tokens.contains(")")){
             int index = havingCondition.indexOf("(");
             listHavings.add(new Having(tokens.get(0), havingCondition.substring(index)));
-            return listHavings;
+            }else {
+                listHavings.add(new Having(null, havingCondition));
+
+            }
         }else    {
             var splitHaving = getSplit(tokens, " AND");
             for (String having : splitHaving) {
+                if(having.contains(")")){
                 int index = having.indexOf("(");
                 listHavings.add(new Having(having.substring(0, index), having.substring(index)));
-            }
+            }else {
+                    listHavings.add(new Having(null, having));
+
+                }}}
             return listHavings;
 
-        }
+
     }
 
     private List<Sort> createSortColumns(List<String> tokens) {

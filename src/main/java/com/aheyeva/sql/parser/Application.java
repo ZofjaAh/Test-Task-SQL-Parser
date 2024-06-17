@@ -33,17 +33,10 @@ public class Application {
 						") as older_users\n" +
 						"WHERE older_users.email LIKE '%@example.com'"
 		);
-		SqlParser parser = new SqlParser(new TokensCreator());
+		SqlParser parser = new SqlParser();
 		listCommands.stream()
 				.map(parser::parse)
 				.forEach(query -> System.out.println(query.toString()));
-
-		//now you can add your SQL-query
-      Scanner scan = new Scanner(System.in);
-       String line = scan.nextLine();
-        if (!line.equals("End")) {
-			System.out.println(parser.parse(line));
-        }
 
 	}
 

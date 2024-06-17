@@ -1,6 +1,5 @@
 package com.aheyeva.sql.parser;
 
-
 import com.aheyeva.sql.parser.busines.SqlParser;
 import com.aheyeva.sql.parser.busines.TokensCreator;
 import com.aheyeva.sql.parser.model.*;
@@ -15,7 +14,7 @@ class DifficultQueriesParserTests {
 	private SqlParser sqlParser;
 	@BeforeEach
 	void init(){
-		this.sqlParser= new SqlParser(new TokensCreator());
+		this.sqlParser= new SqlParser();
 	}
 	@Test
 	void whenSelectByAsterisk() {
