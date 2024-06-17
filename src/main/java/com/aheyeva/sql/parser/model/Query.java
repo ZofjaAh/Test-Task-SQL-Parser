@@ -3,6 +3,7 @@ package com.aheyeva.sql.parser.model;
 import lombok.*;
 
 import java.util.List;
+
 @Getter
 @With
 @Builder

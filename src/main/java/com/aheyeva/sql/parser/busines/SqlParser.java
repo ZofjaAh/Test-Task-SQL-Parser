@@ -77,7 +77,7 @@ public class SqlParser {
             } else if (tokens.contains("AS") && tokens.size() > 3) {
                 int aliasIndex = tokens.indexOf("AS");
                 return List.of(new Source(getReduce(tokens, 0, aliasIndex).substring(1),
-                        tokens.get(tokens.size()-1 )));
+                        tokens.get(tokens.size() - 1)));
             } else {
                 return List.of(new Source(tokens.get(0), tokens.get(2)));
             }
@@ -121,26 +121,25 @@ public class SqlParser {
                 joinConditions.add(tokens.subList(groupJoinIndex.get(j) - 1, tokens.size()));
             } else {
                 joinConditions.add(tokens.subList(groupJoinIndex.get(j) - 1, groupJoinIndex.get(j + 1)));
-            }}
-            for(List<String> joinCondition: joinConditions){
+            }
+        }
+        for (List<String> joinCondition : joinConditions) {
             joinIndex = joinCondition.indexOf("JOIN");
             aliasIndex = tokens.indexOf("AS");
             onIndex = tokens.indexOf("ON");
             if (joinIndex == 1 && !typesJoin.contains(joinCondition.get(0))) {
                 joinType = "INNER";
-                if (aliasIndex == -1 && (onIndex - joinIndex) > 2 ) {
+                if (aliasIndex == -1 && (onIndex - joinIndex) > 2) {
                     leftSource = new Source(joinCondition.get(joinIndex + 1), joinCondition.get(joinIndex + 2));
                 } else if (aliasIndex == -1) {
                     leftSource = new Source(joinCondition.get(joinIndex + 1), null);
-                }
-                else {
+                } else {
                     leftSource = new Source(joinCondition.get(joinIndex + 1), joinCondition.get(aliasIndex + 1));
 
                 }
                 listJoins.add(new Join(joinType, leftSource,
                         getReduce(joinCondition, onIndex + 1, joinCondition.size()).substring(1)));
-            }
-            else if (joinIndex == 1 && typesJoin.contains(joinCondition.get(0))) {
+            } else if (joinIndex == 1 && typesJoin.contains(joinCondition.get(0))) {
                 joinType = joinCondition.get(0);
                 if (aliasIndex == -1) {
                     leftSource = new Source(joinCondition.get(joinIndex + 1), null);
@@ -151,12 +150,12 @@ public class SqlParser {
                 listJoins.add(new Join(joinType, leftSource,
                         getReduce(joinCondition, onIndex + 1, joinCondition.size()).substring(1)));
 
-            } else {throw new ParserException();}
+            } else {
+                throw new ParserException();
+            }
         }
-            return listJoins;}
-
-
-
+        return listJoins;
+    }
 
 
     private List<WhereClause> createConditions(List<String> tokens) {
@@ -178,7 +177,7 @@ public class SqlParser {
                 }
             }
         } else {
-            listConditions.add(new WhereClause(null, getReduce(tokens,0, tokens.size()).substring(1)));
+            listConditions.add(new WhereClause(null, getReduce(tokens, 0, tokens.size()).substring(1)));
         }
         return listConditions;
     }
@@ -196,32 +195,34 @@ public class SqlParser {
 
     private List<Having> createHavings(List<String> tokens) {
         List<Having> listHavings = new ArrayList<>();
-        if ( !tokens.contains("AND")) {
-            var havingCondition = getReduce(tokens,0, tokens.size());
-            if(tokens.contains(")")){
-            int index = havingCondition.indexOf("(");
-            listHavings.add(new Having(tokens.get(0), havingCondition.substring(index)));
-            }else {
+        if (!tokens.contains("AND")) {
+            var havingCondition = getReduce(tokens, 0, tokens.size());
+            if (tokens.contains(")")) {
+                int index = havingCondition.indexOf("(");
+                listHavings.add(new Having(tokens.get(0), havingCondition.substring(index)));
+            } else {
                 listHavings.add(new Having(null, havingCondition));
 
             }
-        }else    {
+        } else {
             var splitHaving = getSplit(tokens, " AND");
             for (String having : splitHaving) {
-                if(having.contains(")")){
-                int index = having.indexOf("(");
-                listHavings.add(new Having(having.substring(0, index), having.substring(index)));
-            }else {
+                if (having.contains(")")) {
+                    int index = having.indexOf("(");
+                    listHavings.add(new Having(having.substring(0, index), having.substring(index)));
+                } else {
                     listHavings.add(new Having(null, having));
 
-                }}}
-            return listHavings;
+                }
+            }
+        }
+        return listHavings;
 
 
     }
 
     private List<Sort> createSortColumns(List<String> tokens) {
-        tokens = tokens.subList(1,tokens.size());
+        tokens = tokens.subList(1, tokens.size());
         List<Sort> listSorts = new ArrayList<>();
         if (!tokens.contains(",") && tokens.size() == 1) {
             listSorts.add(new Sort(tokens.get(0), "ASC"));

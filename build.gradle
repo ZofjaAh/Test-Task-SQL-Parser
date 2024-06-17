@@ -26,7 +26,7 @@ dependencies {
 
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-	testImplementation "org.assertj:assertj-core:3.24.2$assertjVersion"
+	testImplementation "org.assertj:assertj-core:$assertjVersion"
 
 	testCompileOnly "org.projectlombok:$lombokVersion"
 	testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
